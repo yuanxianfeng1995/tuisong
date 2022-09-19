@@ -278,7 +278,7 @@ templateMessageSend(); // 第一次执行程序时会推送一次消息，如使
 const schedule = require('node-schedule');
 const scheduleCronstyle = () => {
   // 每天的早8点触发（定时器规则：秒/分/时/日/月/年，*号可理解为"每"的意思，如 0 0 8 * 这个*表示每日）
-  schedule.scheduleJob('0 1 * * * *', () => {
+  schedule.scheduleJob('0 0 8 * * *', () => {
     templateMessageSend();
   });
 }
