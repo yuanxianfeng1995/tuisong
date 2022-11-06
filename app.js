@@ -1,7 +1,7 @@
 /************** 注意：此文件中的代码，不要做任何修改 ****************/
 const config = require("./config")
 const axios = require('axios');
-
+const lunarFun = require('lunar-fun');
 // 导入 dayjs 模块
 const dayjs = require("dayjs")
 // 导入 dayjs 插件
@@ -120,14 +120,14 @@ async function sweetNothings() {
 
 // 2、舔狗日记
 async function getTianGou() {
-  let res = await axiosGet('http://api.weijieyue.cn/api/tgrj/api.php')
-  return res.data;
+  let res = await axiosGet('https://v.api.aa1.cn/api/tiangou/index.php')
+  console.log('res.newslist[0]', res.data.newslist[0])
+  return res.data.newslist[0].content;
 }
 
 // 3、网易云热评
 async function getWangYiYun() {
   let res = await axiosGet('https://keai.icu/apiwyy/api')
-  console.log('res', res)
   return res.data;
 }
 
@@ -140,136 +140,146 @@ function randomColor() {
 async function templateMessageSend() {
   const token = await getToken();
   const url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' + token;
-  // 天气信息
-  let weatherInfo = await get_weather()
-  // 计算在一起的天数
-  let together_day = dayjs().diff(config.love_date, "day")
-  // 每日情话
-  let loveStr = await sweetNothings()
-  // 网易云热评
-  let wangYiYun = await getWangYiYun()
-  // 舔狗日记
-  let tianGou = await getTianGou()
+  try {
 
 
-  const arr = config.birthday1.birthday.split(',')
-  const arr1 = config.birthday1.birthday.split(',')
-  let params = {
-    touser: config.user,
-    template_id: config.template_id,
-    url: 'http://weixin.qq.com/download',
-    topcolor: '#FF0000',
-    data: {
-      // 当前日期
-      nowDate: {
-        value: getCurrentDate(),
-        color: randomColor(),
+    // 天气信息
+    let weatherInfo = await get_weather()
+    // 计算在一起的天数
+    let together_day = dayjs().diff(config.love_date, "day")
+    // 每日情话
+    let loveStr = await sweetNothings()
+    // 网易云热评
+    let wangYiYun = await getWangYiYun()
+    // 舔狗日记
+    let tianGou = await getTianGou()
+
+
+    const arr = config.birthday1.birthday.split(',')
+    const arr1 = config.birthday2.birthday.split(',')
+    let now = new Date();
+    let thisYear = now.getFullYear();
+    let date1 = lunarFun.gregorianToLunal(thisYear, arr[0], arr[1]); // [1999, 4, 23, false]
+    let date2 = lunarFun.gregorianToLunal(thisYear, arr1[0], arr1[1]); // [1999, 4, 23, false]
+    console.log('date1', 'date2', date1, date2)
+    let params = {
+      touser: config.user,
+      template_id: config.template_id,
+      url: 'http://weixin.qq.com/download',
+      topcolor: '#FF0000',
+      data: {
+        // 当前日期
+        nowDate: {
+          value: getCurrentDate(),
+          color: randomColor(),
+        },
+        // 省份
+        province: {
+          value: weatherInfo.province,
+          color: randomColor(),
+        },
+        // 城市
+        city: {
+          value: weatherInfo.city,
+          color: randomColor(),
+        },
+        // 天气
+        weather: {
+          value: weatherInfo.weather,
+          color: randomColor(),
+        },
+        // 当前气温
+        temp: {
+          value: weatherInfo.temp + "°C",
+          color: randomColor(),
+        },
+        // 最低气温
+        low: {
+          value: weatherInfo.low + "°C",
+          color: randomColor(),
+        },
+        // 最高气温
+        high: {
+          value: weatherInfo.high + "°C",
+          color: randomColor(),
+        },
+        // 风向
+        wind: {
+          value: weatherInfo.wind,
+          color: randomColor(),
+        },
+        // 空气质量
+        airQuality: {
+          value: weatherInfo.airQuality,
+          color: randomColor(),
+        },
+        // 湿度
+        humidity: {
+          value: weatherInfo.humidity,
+          color: randomColor(),
+        },
+        // 宝贝的名字
+        dearName: {
+          value: config.birthday1.name,
+          color: randomColor(),
+        },
+        // 我的名字
+        myName: {
+          value: config.birthday2.name,
+          color: randomColor(),
+        },
+        // 距离宝贝生日
+        dearBrthDays: {
+          value: brthDate(date1[1], date1[2]),
+          color: randomColor(),
+        },
+        // 距离我的生日
+        myBrthDays: {
+          value: brthDate(date2[1], date2[2]),
+          color: randomColor(),
+        },
+        // 在一起的天数
+        loveDays: {
+          value: together_day,
+          color: randomColor(),
+        },
+        // 每日情话
+        loveWords: {
+          value: loveStr,
+          color: randomColor(),
+        },
+        wangYiYunWords: {
+          value: `作者:${wangYiYun.user} 歌名:${wangYiYun.music}------${wangYiYun.content}`,
+          color: randomColor(),
+        },
+        tianGouWords: {
+          value: tianGou,
+          color: randomColor(),
+        }
       },
-      // 省份
-      province: {
-        value: weatherInfo.province,
-        color: randomColor(),
-      },
-      // 城市
-      city: {
-        value: weatherInfo.city,
-        color: randomColor(),
-      },
-      // 天气
-      weather: {
-        value: weatherInfo.weather,
-        color: randomColor(),
-      },
-      // 当前气温
-      temp: {
-        value: weatherInfo.temp + "°C",
-        color: randomColor(),
-      },
-      // 最低气温
-      low: {
-        value: weatherInfo.low + "°C",
-        color: randomColor(),
-      },
-      // 最高气温
-      high: {
-        value: weatherInfo.high + "°C",
-        color: randomColor(),
-      },
-      // 风向
-      wind: {
-        value: weatherInfo.wind,
-        color: randomColor(),
-      },
-      // 空气质量
-      airQuality: {
-        value: weatherInfo.airQuality,
-        color: randomColor(),
-      },
-      // 湿度
-      humidity: {
-        value: weatherInfo.humidity,
-        color: randomColor(),
-      },
-      // 宝贝的名字
-      dearName: {
-        value: config.birthday1.name,
-        color: randomColor(),
-      },
-      // 我的名字
-      myName: {
-        value: config.birthday2.name,
-        color: randomColor(),
-      },
-      // 距离宝贝生日
-      dearBrthDays: {
-        value: brthDate(arr[0], arr[1]),
-        color: randomColor(),
-      },
-      // 距离我的生日
-      myBrthDays: {
-        value: brthDate(arr1[0], arr1[1]),
-        color: randomColor(),
-      },
-      // 在一起的天数
-      loveDays: {
-        value: together_day,
-        color: randomColor(),
-      },
-      // 每日情话
-      loveWords: {
-        value: loveStr,
-        color: randomColor(),
-      },
-      wangYiYunWords: {
-        value: `作者:${wangYiYun.user} 歌名:${wangYiYun.music}------${wangYiYun.content}`,
-        color: randomColor(),
-      },
-      tianGouWords: {
-        value: tianGou,
-        color: randomColor(),
+    };
+    for (const user of config.user) {
+      // 模板id 配置项
+      params.touser = user
+      let res = await axiosPost(url, params);
+      switch (res.data.errcode) {
+        case 40001:
+          console.log("推送消息失败,请检查 appId/appSecret 是否正确");
+          break
+        case 40003:
+          console.log("推送消息失败,请检查微信号是否正确");
+          break
+        case 40037:
+          console.log("推送消息失败,请检查模板id是否正确");
+          break
+        case 0:
+          console.log("推送消息成功");
+          break
       }
-    },
-  };
-  for (const user of config.user) {
-    // 模板id 配置项
-    params.touser = user
-    let res = await axiosPost(url, params);
-    switch (res.data.errcode) {
-      case 40001:
-        console.log("推送消息失败,请检查 appId/appSecret 是否正确");
-        break
-      case 40003:
-        console.log("推送消息失败,请检查微信号是否正确");
-        break
-      case 40037:
-        console.log("推送消息失败,请检查模板id是否正确");
-        break
-      case 0:
-        console.log("推送消息成功");
-        break
     }
+  } catch (error) {
+    console.log('error', error)
   }
-
 }
 // 调用函数，推送模板消息
 templateMessageSend(); // 第一次执行程序时会推送一次消息，如使用定时器

@@ -13,6 +13,7 @@
     "axios": "^0.24.0",
     "dayjs": "^1.11.5",
     "express": "^4.18.1",
+    "lunar-fun": "^2.0.0",
     "node-schedule": "^2.1.0"
   }
 }
