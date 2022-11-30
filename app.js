@@ -121,9 +121,9 @@ try {
 
   // 2、舔狗日记
   async function getTianGou() {
-    let res = await axiosGet('https://v.api.aa1.cn/api/tiangou/index.php')
-    console.log('res.newslist[0]', res.data.newslist[0])
-    return res.data.newslist[0].content;
+    let res = await axiosGet('http://api.gt5.cc/api/dog')
+    console.log('res.newslist[0]', res.data)
+    return res.data;
   }
 
   // 3、网易云热评
